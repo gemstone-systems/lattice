@@ -1,3 +1,4 @@
+import { didPlcSchema } from "@/lib/types/atproto";
 import { z } from "zod";
 
 export const websocketMessageSchema = z.object({
@@ -9,6 +10,7 @@ export type WebsocketMessage = z.infer<typeof websocketMessageSchema>;
 export const shardMessageSchema = websocketMessageSchema.extend({
     type: z.literal("shard/message"),
     text: z.string(),
+    did: didPlcSchema,
     timestamp: z.coerce.date(),
 });
 
