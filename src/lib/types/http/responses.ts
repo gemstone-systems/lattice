@@ -1,5 +1,5 @@
-import z from "zod";
 import { httpResponseErrorInfoSchema } from "@/lib/types/http/errors";
+import { z } from "zod";
 
 export const HttpResponseStatusType = {
     SUCCESS: "success",
