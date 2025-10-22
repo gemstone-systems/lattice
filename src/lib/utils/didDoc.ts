@@ -114,4 +114,4 @@ const createDidWebDoc = async () => {
     return await buildDidWebDoc(didWeb);
 };
 
-export const didDoc = await createDidWebDoc();
+export const DID_DOCUMENT = await createDidWebDoc();
