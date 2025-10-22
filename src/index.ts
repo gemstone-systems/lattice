@@ -1,43 +1,42 @@
-import type { ShardMessage } from "@/lib/types/messages";
-import { rawDataToString } from "@/lib/utils";
-import { validateNewMessage } from "@/lib/validators";
-import type { RawData } from "ws";
-import WebSocket from "ws";
+import { SERVER_PORT } from "@/lib/env";
+import { routes } from "@/routes";
+import { setupServer } from "@/server";
 
-const wss = new WebSocket.Server({ port: 8080 });
+const main = async () => {
+    const server = await setupServer();
+    for (const [url, route] of Object.entries(routes)) {
+        if (!route.wsHandler) {
+            const { handler, method } = route;
+            server.route({
+                url,
+                method,
+                handler,
+            });
+        } else {
+            const { wsHandler, method, handler } = route;
+            server.route({
+                url,
+                method: method ?? "GET",
+                handler: handler ?? (() => new Response()),
+                wsHandler,
+            });
+        }
+    }
 
-const messages: ShardMessage[] = [];
-const clients = new Set<WebSocket>();
-
-wss.on("connection", (ws) => {
-    clients.add(ws);
-
-    ws.send(
-        JSON.stringify({
-            type: "shard/history",
-            messages: messages,
-        }),
-    );
-
-    ws.on("message", (data: RawData) => {
-        const jsonText = rawDataToString(data);
-        const jsonData: unknown = JSON.parse(jsonText);
-
-        const shardMessage = validateNewMessage(jsonData);
-        if (!shardMessage) return;
-
-        messages.push(shardMessage);
-
-        clients.forEach((client) => {
-            if (client.readyState === WebSocket.OPEN) {
-                client.send(JSON.stringify(shardMessage));
-            }
-        });
+    server.listen({ port: SERVER_PORT }).catch((err: unknown) => {
+        server.log.error(err);
+        process.exit(1);
     });
+};
 
-    ws.on("close", () => {
-        clients.delete(ws);
+main()
+    .then(() => {
+        console.log(`Server is running on port ${SERVER_PORT.toString()}`);
+    })
+    .catch((err: unknown) => {
+        console.error("Something went wrong :(");
+        console.error(
+            "=========================== FULL ERROR BELOW ===========================",
+        );
+        console.error(err);
     });
-});
-
-console.log("Server running on ws://localhost:8080");
