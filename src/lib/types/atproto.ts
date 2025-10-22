@@ -64,7 +64,7 @@ export type VerificationMethod = z.infer<typeof verificationMethodSchema>;
 
 export const didDocumentSchema = z.object({
     "@context": z.array(z.string()),
-    id: z.string(),
+    id: didSchema,
     alsoKnownAs: z.optional(z.array(z.string())),
     verificationMethod: z.optional(z.array(verificationMethodSchema)),
     service: z.optional(
