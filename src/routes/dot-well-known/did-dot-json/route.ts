@@ -37,7 +37,9 @@ const routeHandlerFactory = (did: Did) => {
                     "Somehow tried to serve a did:web document when no did:web document was available. Specifically, somehow parsing the same SERVICE_DID environment variable resulted in both a did:web and a not did:web",
             });
         }
-        return Response.json(didDoc);
+
+        // NOTE: might seem sus, but it's much harder to actually expose out private keys lol
+        return Response.json(didDoc.didDoc);
     };
 
     return serveDidDoc;

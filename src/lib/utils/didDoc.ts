@@ -111,8 +111,7 @@ const createDidWebDoc = async () => {
     }
     const { success: isDidWeb, data: didWeb } = didWebSchema.safeParse(did);
     if (!isDidWeb) return;
-    const { didDoc } = await buildDidWebDoc(didWeb);
-    return didDoc;
+    return await buildDidWebDoc(didWeb);
 };
 
 export const didDoc = await createDidWebDoc();
