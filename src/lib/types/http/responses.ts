@@ -1,3 +1,4 @@
+import { sessionInfoSchema } from "@/lib/types/handshake";
 import { httpResponseErrorInfoSchema } from "@/lib/types/http/errors";
 import { z } from "zod";
 
@@ -11,7 +12,7 @@ export type HttpResponseStatusType = z.infer<
 >;
 
 export const handshakeResponseSchema = z.object({
-    sessionInfo: z.unknown(),
+    sessionInfo: sessionInfoSchema,
 });
 export type HandshakeResponse = z.infer<typeof handshakeResponseSchema>;
 
