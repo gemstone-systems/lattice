@@ -1,13 +1,8 @@
 import { OWNER_DID, SERVICE_DID } from "@/lib/env";
 import { getRegistrationState, setRegistrationState } from "@/lib/state";
-import type { AtUri } from "@/lib/types/atproto";
-import {
-    systemsGmstnDevelopmentChannelRecordSchema,
-    systemsGmstnDevelopmentChannelRecordSchema,
-} from "@/lib/types/lexicon/systems.gmstn.development.channel";
+import {} from "@/lib/types/lexicon/systems.gmstn.development.channel";
 import { prismCommitSchema } from "@/lib/types/prism";
 import type { RouteHandler, WsRouteHandler } from "@/lib/types/routes";
-import { getRecordFromAtUri } from "@/lib/utils/atproto";
 import { newErrorResponse } from "@/lib/utils/http/responses";
 import { rawDataToString } from "@/lib/utils/ws";
 import type { RawData } from "ws";
