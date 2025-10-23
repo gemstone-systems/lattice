@@ -29,6 +29,22 @@ if (!serviceDidParseSuccess) {
 }
 export const SERVICE_DID = serviceDidParsed ?? "did:web:localhost";
 
+
+const constellationUrl = process.env.CONSTELLATION_URL;
+let constellationUrlParsed: URL | undefined;
+try {
+    constellationUrlParsed = new URL(constellationUrl ?? "");
+} catch (err) {
+
+    
+    console.warn(
+        "Invalid CONSTELLATION_URL. Please ensure that the environment variable is a valid URL.",
+    );
+console.warn("Falling back to default constellation instance.");
+    console.warn(err);
+}
+export const CONSTELLATION_URL = constellationUrlParsed ?? new URL("https://constellation.microcosm.blue/");
+
 const ownerDid = process.env.OWNER_DID;
 const {
     success: ownerDidParseSuccess,
