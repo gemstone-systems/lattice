@@ -45,3 +45,17 @@ if (!ownerDidParseSuccess) {
     throw new Error(z.prettifyError(ownerDidParseError));
 }
 export const OWNER_DID = ownerDidParsed;
+
+const prismUrl = process.env.PRISM_URL;
+let prismUrlParsed: URL | undefined;
+try {
+    prismUrlParsed = new URL(prismUrl ?? "");
+} catch (err) {
+    console.warn(
+        "Invalid PRISM_URL. Please ensure that the environment variable is a valid URL.",
+    );
+    console.warn("Falling back to default prism instance.");
+    console.warn(err);
+}
+export const PRISM_URL =
+    prismUrlParsed ?? new URL("wss://jetstream.gmstn.systems/subscribe");
