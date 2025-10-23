@@ -1,10 +1,10 @@
 import type {
     AtprotoHandle,
+    AtUri,
     Did,
-    DidDocument} from "@/lib/types/atproto";
-import {
-    atprotoHandleSchema
+    DidDocument,
 } from "@/lib/types/atproto";
+import { atprotoHandleSchema } from "@/lib/types/atproto";
 import type { Result } from "@/lib/utils/result";
 import type { DidDocumentResolver } from "@atcute/identity-resolver";
 import {
@@ -55,4 +55,15 @@ export const resolveDidDoc = async (
     } catch (err) {
         return { ok: false, error: err };
     }
+};
+
+// thank u julie
+export const atUriRegexp =
+    /^at:\/\/([a-zA-Z0-9._:%-]+)(?:\/([a-zA-Z0-9-.]+)(?:\/([a-zA-Z0-9._~:@!$&%')(*+,;=-]+))?)?(?:#(\/[a-zA-Z0-9._~:@!$&%')(*+,;=\-[\]/\\]*))?$/;
+
+export const atUriToString = ({ authority, collection, rKey }: AtUri) => {
+    let result = `at://${authority}`;
+    result += collection ? `/${collection}` : "";
+    result += rKey ? `/${rKey}` : "";
+    return result;
 };
