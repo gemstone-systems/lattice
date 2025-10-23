@@ -12,6 +12,7 @@ export interface Route {
     method: Method;
     handler: RouteHandler;
     wsHandler?: undefined;
+    skipRegistrationCheck?: true;
 }
 
 export type WsRouteHandler = (
@@ -23,4 +24,6 @@ export interface WsRoute {
     method?: Method;
     handler?: RouteHandler;
     wsHandler: WsRouteHandler;
+    skipRegistrationCheckHttp?: true;
+    skipRegistrationCheckWs?: true;
 }
