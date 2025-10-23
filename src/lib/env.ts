@@ -42,6 +42,9 @@ if (!ownerDidParseSuccess) {
     console.error(
         "See the example environment variables file for more information. `.example.env` in the project root.",
     );
+    console.error(
+        "If you are doing local development, you must still set an owner did. This must point to a repo containing the records from the bootstrap.",
+    );
     throw new Error(z.prettifyError(ownerDidParseError));
 }
 export const OWNER_DID = ownerDidParsed;
