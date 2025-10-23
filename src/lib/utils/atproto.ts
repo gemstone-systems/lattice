@@ -5,6 +5,7 @@ import type {
     DidDocument,
 } from "@/lib/types/atproto";
 import { atprotoHandleSchema } from "@/lib/types/atproto";
+import { comAtprotoRepoGetRecordResponseSchema } from "@/lib/types/lexicon/com.atproto.repo.getRecord";
 import type { Result } from "@/lib/utils/result";
 import type { DidDocumentResolver } from "@atcute/identity-resolver";
 import {
@@ -15,6 +16,62 @@ import {
     WebDidDocumentResolver,
     WellKnownHandleResolver,
 } from "@atcute/identity-resolver";
+
+export const getRecordFromAtUri = async ({
+    authority,
+    collection,
+    rKey,
+}: Required<AtUri>): Promise<Result<unknown, unknown>> => {
+    const didDocResult = await resolveDidDoc(authority);
+    if (!didDocResult.ok) return { ok: false, error: didDocResult.error };
+
+    const { service: services } = didDocResult.data;
+    if (!services)
+        return {
+            ok: false,
+            error: { message: "Resolved DID document has no service field." },
+        };
+
+    const pdsService = services.find(
+        (service) =>
+            service.id === "#atproto_pds" &&
+            service.type === "AtprotoPersonalDataServer",
+    );
+
+    if (!pdsService)
+        return {
+            ok: false,
+            error: {
+                message:
+                    "Resolved DID document has no PDS service listed in the document.",
+            },
+        };
+
+    const pdsEndpointRecord = pdsService.serviceEndpoint;
+    let pdsEndpointUrl;
+    try {
+        // @ts-expect-error yes, we are coercing something that is explicitly not a string into a string, but in this case we want to be specific. only serviceEndpoints with valid atproto pds URLs should be allowed.
+        pdsEndpointUrl = new URL(pdsEndpointRecord).origin;
+    } catch (err) {
+        return { ok: false, error: err };
+    }
+    const req = new Request(
+        `${pdsEndpointUrl}/xrpc/com.atproto.repo.getRecord?repo=${didDocResult.data.id}&collection=${collection}&rkey=${rKey}`,
+    );
+
+    const res = await fetch(req);
+    const data: unknown = await res.json();
+
+    const {
+        success: responseParseSuccess,
+        error: responseParseError,
+        data: record,
+    } = comAtprotoRepoGetRecordResponseSchema.safeParse(data);
+    if (!responseParseSuccess) {
+        return { ok: false, error: responseParseError };
+    }
+    return { ok: true, data: record.value };
+};
 
 export const didDocResolver: DidDocumentResolver =
     new CompositeDidDocumentResolver({
