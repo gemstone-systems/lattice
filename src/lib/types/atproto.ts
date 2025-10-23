@@ -84,3 +84,12 @@ export const didDocumentSchema = z.object({
     ),
 });
 export type DidDocument = z.infer<typeof didDocumentSchema>;
+
+export const comAtprotoRepoStrongRefSchema = z.object({
+    $type: z.optional(z.literal("com.atproto.repo.strongRef")),
+    cid: z.string(),
+    uri: z.string(),
+});
+export type ComAtprotoRepoStrongRef = z.infer<
+    typeof comAtprotoRepoStrongRefSchema
+>;
