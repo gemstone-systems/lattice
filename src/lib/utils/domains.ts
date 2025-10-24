@@ -5,7 +5,10 @@
 export const isDomain = (str: string) => {
     try {
         const url = new URL(str.includes("://") ? str : `https://${str}`);
-        return url.hostname.includes(".") && !url.hostname.startsWith(".");
+        return (
+            (url.hostname.includes(".") && !url.hostname.startsWith(".")) ||
+            url.hostname === "localhost"
+        );
     } catch {
         return false;
     }
