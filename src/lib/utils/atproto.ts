@@ -149,7 +149,7 @@ export const stringToAtUri = (str: string): Result<AtUri, unknown> => {
         success: authorityParseSuccess,
         error: authorityParseError,
         data: authorityParsed,
-    } = atUriAuthoritySchema.safeParse(fragments[1]);
+    } = atUriAuthoritySchema.safeParse(fragments[2]);
     if (!authorityParseSuccess)
         return {
             ok: false,
@@ -164,8 +164,8 @@ export const stringToAtUri = (str: string): Result<AtUri, unknown> => {
         success: nsidParseSuccess,
         error: nsidParseError,
         data: nsidParsed,
-    } = nsidSchema.safeParse(fragments[2]);
-    if (fragments[2] && !nsidParseSuccess)
+    } = nsidSchema.safeParse(fragments[3]);
+    if (fragments[3] && !nsidParseSuccess)
         return {
             ok: false,
             error: {
@@ -180,7 +180,7 @@ export const stringToAtUri = (str: string): Result<AtUri, unknown> => {
         data: {
             authority: authorityParsed,
             collection: nsidParsed,
-            rKey: fragments[3],
+            rKey: fragments[4],
         },
     };
 };
