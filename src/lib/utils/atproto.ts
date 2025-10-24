@@ -184,3 +184,33 @@ export const stringToAtUri = (str: string): Result<AtUri, unknown> => {
         },
     };
 };
+
+export const getEndpointFromDid = async (
+    did: Did,
+    serviceType: string,
+): Promise<Result<URL, unknown>> => {
+    const didDocResolveResult = await resolveDidDoc(did);
+    if (!didDocResolveResult.ok) {
+        return { ok: false, error: didDocResolveResult.error };
+    }
+
+    const didDocServices = didDocResolveResult.data.service;
+    const shardService = didDocServices?.find(
+        (service) => service.type !== serviceType,
+    );
+
+    let shardUrl: URL | undefined;
+    if (!didDocServices || !shardService) {
+        const domain = decodeURIComponent(did.slice(8));
+        if (domain.startsWith("localhost"))
+            shardUrl = new URL(`http://${domain}`);
+        else shardUrl = new URL(`https://${domain}`);
+    } else {
+        try {
+            shardUrl = new URL(shardService.serviceEndpoint as string);
+        } catch (error) {
+            return { ok: false, error };
+        }
+    }
+    return { ok: true, data: shardUrl };
+};
