@@ -41,7 +41,6 @@ export const initiateHandshakeTo = async ({
             return { ok: false, error };
         }
     }
-    shardUrl = "http://localhost:7337/";
 
     const jwt = await createInterServiceJwt(did);
 
