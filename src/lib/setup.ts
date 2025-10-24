@@ -8,6 +8,7 @@ import {
 } from "@/lib/utils/atproto";
 import { getConstellationBacklink } from "@/lib/utils/constellation";
 import { isDomain } from "@/lib/utils/domains";
+import { connectToShard, getShardEndpointFromDid } from "@/lib/utils/gmstn";
 import { initiateHandshakeTo } from "@/lib/utils/handshake";
 
 export const performHandshakes = async (latticeAtUri: AtUri) => {
@@ -103,6 +104,9 @@ export const performHandshakes = async (latticeAtUri: AtUri) => {
 
         const channelAtUris = entry[1];
 
+        // FIXME: perf issue. we are awaiting each handshake to resolve before we make new ones
+        // this means that the handshakes are consecutive and not concurrent.
+        // stuff this into a Promise.all by mapping over the array instead
         const handshakeResult = await initiateHandshakeTo({
             did: shardDid,
             channels: channelAtUris,
@@ -112,4 +116,39 @@ export const performHandshakes = async (latticeAtUri: AtUri) => {
         console.log("Handshake to", shardAtUri.rKey, "complete!");
         handshakeTokens.set(shardAtUri, sessionInfo);
     }
+};
+
+export const connectToShards = async () => {
+    const shardSessions = handshakeTokens.entries();
+    const shardConnectionPromises = shardSessions
+        .map(async (session) => {
+            const atUri = session[0];
+            const { token } = session[1];
+            const rkey = atUri.rKey ?? "";
+            const shardDid = isDomain(rkey)
+                ? `did:web:${encodeURIComponent(rkey)}`
+                : `did:plc:${rkey}`;
+
+            console.log(shardDid);
+
+            // TODO: again, implement proper did -> endpoint parsing here too.
+            // for now, we just assume did:web and construce a URL based on that.
+            // @ts-expect-error trust me bro it's a string
+            const shardUrlResult = await getShardEndpointFromDid(shardDid);
+
+            if (!shardUrlResult.ok) return;
+
+            return {
+                // TODO: xrpc and lexicon this endpoint
+                shardUrl: `${shardUrlResult.data.origin}/connect`,
+                sessionToken: token,
+            };
+        })
+        .toArray();
+
+    const shardConnectionRequests = await Promise.all(shardConnectionPromises);
+
+    return shardConnectionRequests
+        .filter((request) => request !== undefined)
+        .map((request) => connectToShard(request));
 };
