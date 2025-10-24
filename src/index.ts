@@ -14,41 +14,6 @@ import { routes } from "@/routes";
 import { setupServer } from "@/server";
 
 const main = async () => {
-    let latticeUrlOrigin = decodeURIComponent(
-        SERVICE_DID.startsWith("did:web:") ? SERVICE_DID.slice(8) : "",
-    );
-    if (latticeUrlOrigin === "localhost")
-        latticeUrlOrigin += `:${SERVER_PORT.toString()}`;
-    if (latticeUrlOrigin === "") {
-        // TODO: resolve did:plc endpoint to get the origin of the lattice endpoint described by the did:plc doc
-        // for now we just throw.
-        throw new Error(
-            "did:plc support not yet implemented. Provide a did:web for now. did:plc support will come in the future.",
-        );
-    }
-
-    const latticeAtUri: Required<AtUri> = {
-        // @ts-expect-error alas, template literal weirdness continues uwu
-        authority: OWNER_DID,
-        collection: "systems.gmstn.development.lattice",
-        rKey: latticeUrlOrigin,
-    };
-
-    const latticeRecord = await getRecordFromAtUri(latticeAtUri);
-
-    if (latticeRecord.ok) {
-        setRegistrationState(true);
-    }
-
-    const prismWebsocket = connectToPrism({
-        wantedCollections: ["systems.gmstn.development.*"],
-    });
-
-    // TODO: probably move this to an `attachListeners` hook that attaches the listeners we want.
-    attachLatticeRegistrationListener(prismWebsocket);
-
-    await performHandshakes(latticeAtUri);
-
     const server = await setupServer();
     for (const [url, route] of Object.entries(routes)) {
         if (!route.wsHandler) {
@@ -92,6 +57,41 @@ const main = async () => {
         server.log.error(err);
         process.exit(1);
     });
+
+    let latticeUrlOrigin = decodeURIComponent(
+        SERVICE_DID.startsWith("did:web:") ? SERVICE_DID.slice(8) : "",
+    );
+    if (latticeUrlOrigin === "localhost")
+        latticeUrlOrigin += `:${SERVER_PORT.toString()}`;
+    if (latticeUrlOrigin === "") {
+        // TODO: resolve did:plc endpoint to get the origin of the lattice endpoint described by the did:plc doc
+        // for now we just throw.
+        throw new Error(
+            "did:plc support not yet implemented. Provide a did:web for now. did:plc support will come in the future.",
+        );
+    }
+
+    const latticeAtUri: Required<AtUri> = {
+        // @ts-expect-error alas, template literal weirdness continues uwu
+        authority: OWNER_DID,
+        collection: "systems.gmstn.development.lattice",
+        rKey: latticeUrlOrigin,
+    };
+
+    const latticeRecord = await getRecordFromAtUri(latticeAtUri);
+
+    if (latticeRecord.ok) {
+        setRegistrationState(true);
+    }
+
+    const prismWebsocket = connectToPrism({
+        wantedCollections: ["systems.gmstn.development.*"],
+    });
+
+    // TODO: probably move this to an `attachListeners` hook that attaches the listeners we want.
+    attachLatticeRegistrationListener(prismWebsocket);
+
+    await performHandshakes(latticeAtUri);
 };
 
 main()
