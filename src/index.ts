@@ -1,6 +1,6 @@
 import { OWNER_DID, SERVER_PORT, SERVICE_DID } from "@/lib/env";
 import { performHandshakes } from "@/lib/setup";
-import { setRegistrationState } from "@/lib/state";
+import { handshakeTokens, setRegistrationState } from "@/lib/state";
 import type { AtUri } from "@/lib/types/atproto";
 import { getRecordFromAtUri } from "@/lib/utils/atproto";
 import { newErrorResponse } from "@/lib/utils/http/responses";
@@ -92,6 +92,16 @@ const main = async () => {
     attachLatticeRegistrationListener(prismWebsocket);
 
     await performHandshakes(latticeAtUri);
+
+    // TODO: change this to the actual WS sessions
+    const handshakeTokenEntries = handshakeTokens.entries().toArray();
+
+    if (handshakeTokenEntries.length === 0) {
+        console.warn("Warning: there are zero handshake tokens on this Lattice.");
+        console.warn("If you're hacking locally, you might want to make sure that there's a running Shard as well.")
+        // NOTE: might change in the future
+        console.warn("Channel records connecting a Lattice to a Shard are not supported now. Dev lattices must point to a dev Shard if both are running locally")
+    }
 };
 
 main()
