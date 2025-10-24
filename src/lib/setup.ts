@@ -1,4 +1,4 @@
-import { handshakeTokens, shardSessions } from "@/lib/state";
+import { handshakeTokens } from "@/lib/state";
 import type { AtUri, Did } from "@/lib/types/atproto";
 import { systemsGmstnDevelopmentChannelRecordSchema } from "@/lib/types/lexicon/systems.gmstn.development.channel";
 import {
