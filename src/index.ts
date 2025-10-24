@@ -1,13 +1,8 @@
-import { __DEV__, OWNER_DID, SERVER_PORT, SERVICE_DID } from "@/lib/env";
+import { OWNER_DID, SERVER_PORT, SERVICE_DID } from "@/lib/env";
 import { performHandshakes } from "@/lib/setup";
 import { setRegistrationState } from "@/lib/state";
-import type { AtUri, Did } from "@/lib/types/atproto";
-import type { SessionInfo } from "@/lib/types/handshake";
-import { systemsGmstnDevelopmentChannelRecordSchema } from "@/lib/types/lexicon/systems.gmstn.development.channel";
-import { getRecordFromAtUri, stringToAtUri } from "@/lib/utils/atproto";
-import { getConstellationBacklink } from "@/lib/utils/constellation";
-import { isDomain } from "@/lib/utils/domains";
-import { initiateHandshakeTo } from "@/lib/utils/handshake";
+import type { AtUri } from "@/lib/types/atproto";
+import { getRecordFromAtUri } from "@/lib/utils/atproto";
 import { newErrorResponse } from "@/lib/utils/http/responses";
 import { connectToPrism } from "@/lib/utils/prism";
 import {
