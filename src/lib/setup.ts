@@ -1,5 +1,5 @@
+import { channelSessions } from "@/lib/state";
 import type { AtUri, Did } from "@/lib/types/atproto";
-import type { SessionInfo } from "@/lib/types/handshake";
 import { systemsGmstnDevelopmentChannelRecordSchema } from "@/lib/types/lexicon/systems.gmstn.development.channel";
 import {
     atUriToString,
@@ -81,9 +81,6 @@ export const performHandshakes = async (latticeAtUri: AtUri) => {
         }
     });
 
-    // TODO: move this to a persisted state
-    const channelSessions = new Map<AtUri, SessionInfo>();
-
     const channelsByShardEntries = channelsByShard.entries();
 
     for (const entry of channelsByShardEntries) {
@@ -113,8 +110,6 @@ export const performHandshakes = async (latticeAtUri: AtUri) => {
         if (!handshakeResult.ok) continue;
         const sessionInfo = handshakeResult.data;
         console.log("Handshake to", shardAtUri.rKey, "complete!");
-        console.log("Session info:", sessionInfo);
         channelSessions.set(shardAtUri, sessionInfo);
     }
-    console.log(channelSessions);
 };

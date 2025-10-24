@@ -1,3 +1,6 @@
+import type { AtUri } from "@/lib/types/atproto";
+import type { SessionInfo } from "@/lib/types/handshake";
+
 export const registrationState = {
     registered: false,
 };
@@ -10,3 +13,5 @@ export const setRegistrationState = (newState: boolean) => {
 export const getRegistrationState = () => {
     return registrationState;
 };
+
+export const channelSessions = new Map<AtUri, SessionInfo>();
