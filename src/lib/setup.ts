@@ -1,4 +1,4 @@
-import { channelSessions } from "@/lib/state";
+import { handshakeTokens, shardSessions } from "@/lib/state";
 import type { AtUri, Did } from "@/lib/types/atproto";
 import { systemsGmstnDevelopmentChannelRecordSchema } from "@/lib/types/lexicon/systems.gmstn.development.channel";
 import {
@@ -110,6 +110,6 @@ export const performHandshakes = async (latticeAtUri: AtUri) => {
         if (!handshakeResult.ok) continue;
         const sessionInfo = handshakeResult.data;
         console.log("Handshake to", shardAtUri.rKey, "complete!");
-        channelSessions.set(shardAtUri, sessionInfo);
+        handshakeTokens.set(shardAtUri, sessionInfo);
     }
 };

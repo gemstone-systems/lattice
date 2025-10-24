@@ -1,5 +1,6 @@
 import type { AtUri } from "@/lib/types/atproto";
 import type { SessionInfo } from "@/lib/types/handshake";
+import type WebSocket from "ws";
 
 export const registrationState = {
     registered: false,
@@ -14,4 +15,5 @@ export const getRegistrationState = () => {
     return registrationState;
 };
 
-export const channelSessions = new Map<AtUri, SessionInfo>();
+export const handshakeTokens = new Map<AtUri, SessionInfo>();
+export const shardSessions = new Map<SessionInfo, WebSocket>();
