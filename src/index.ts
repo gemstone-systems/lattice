@@ -1,9 +1,12 @@
 import { OWNER_DID, SERVER_PORT, SERVICE_DID } from "@/lib/env";
 import { setRegistrationState } from "@/lib/state";
 import type { AtUri, Did } from "@/lib/types/atproto";
+import type { SessionInfo } from "@/lib/types/handshake";
 import { systemsGmstnDevelopmentChannelRecordSchema } from "@/lib/types/lexicon/systems.gmstn.development.channel";
 import { getRecordFromAtUri, stringToAtUri } from "@/lib/utils/atproto";
 import { getConstellationBacklink } from "@/lib/utils/constellation";
+import { isDomain } from "@/lib/utils/domains";
+import { initiateHandshakeTo } from "@/lib/utils/handshake";
 import { newErrorResponse } from "@/lib/utils/http/responses";
 import { connectToPrism } from "@/lib/utils/prism";
 import {
@@ -112,6 +115,41 @@ const main = async () => {
             channelsByShard.set(storeAtAtUri, [...prevUris, currentChannelUri]);
         }
     });
+
+    const channelSessions = new Map<AtUri, SessionInfo>();
+
+    const channelsByShardEntries = channelsByShard.entries();
+
+    for (const entry of channelsByShardEntries) {
+        const shardAtUri = entry[0];
+
+        let shardDid: Did | undefined;
+        // TODO: if the rkey of the shard URI is not a valid domain, then it must be a did:plc
+        // we need to find a better way to enforce this. we really should explore just resolving the
+        // record and then checking the record value for the actual domain instead.
+        // did resolution hard;;
+        if (
+            isDomain(shardAtUri.rKey ?? "") ||
+            shardAtUri.rKey?.startsWith("localhost:")
+        ) {
+            // from the isDomain check, if we pass, we can conclude that
+            shardDid = `did:web:${encodeURIComponent(shardAtUri.rKey ?? "")}`;
+        } else {
+            shardDid = `did:plc:${encodeURIComponent(shardAtUri.rKey ?? "")}`;
+        }
+
+        const channelAtUris = entry[1];
+
+        const handshakeResult = await initiateHandshakeTo({
+            did: shardDid,
+            channels: channelAtUris,
+        });
+        if (!handshakeResult.ok) return;
+        const sessionInfo = handshakeResult.data;
+        console.log("Handshake to", shardAtUri.rKey, "complete!");
+        console.log("Session info:", sessionInfo);
+        channelSessions.set(shardAtUri, sessionInfo);
+    }
 
     const server = await setupServer();
     for (const [url, route] of Object.entries(routes)) {
