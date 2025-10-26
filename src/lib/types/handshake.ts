@@ -1,4 +1,4 @@
-import { atUriSchema } from "@/lib/types/atproto";
+import { atUriSchema, didSchema } from "@/lib/types/atproto";
 import { z } from "zod";
 
 export const shardSessionInfoSchema = z.object({
@@ -6,5 +6,7 @@ export const shardSessionInfoSchema = z.object({
     token: z.string(),
     fingerprint: z.string(),
     allowedChannels: z.array(atUriSchema),
+    shardDid: didSchema,
+    latticeDid: didSchema,
 });
 export type ShardSessionInfo = z.infer<typeof shardSessionInfoSchema>;
