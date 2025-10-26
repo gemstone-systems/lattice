@@ -112,7 +112,7 @@ const main = async () => {
         );
         // NOTE: might change in the future
         console.warn(
-            "Channel records connecting a Lattice to a Shard are not supported now. Dev lattices must point to a dev Shard if both are running locally",
+            "Channel records connecting a local Lattice to a production Shard are not supported (for now). Local Lattices must point to a local Shard.",
         );
     }
 };
