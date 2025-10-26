@@ -3,7 +3,7 @@ import type { AtUri, Did } from "@/lib/types/atproto";
 import { systemsGmstnDevelopmentChannelRecordSchema } from "@/lib/types/lexicon/systems.gmstn.development.channel";
 import {
     atUriToString,
-    getRecordFromAtUri,
+    getRecordFromFullAtUri,
     stringToAtUri,
 } from "@/lib/utils/atproto";
 import { getConstellationBacklink } from "@/lib/utils/constellation";
@@ -34,7 +34,7 @@ export const performHandshakes = async (latticeAtUri: AtUri) => {
 
     const channelRecordsPromises = channelBacklinks.map(
         async ({ did, collection, rkey }) =>
-            await getRecordFromAtUri({
+            await getRecordFromFullAtUri({
                 // @ts-expect-error seriously i gotta do something about the template literals not converting properly SIGH
                 authority: did,
                 collection,

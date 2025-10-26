@@ -22,13 +22,19 @@ import {
 } from "@atcute/identity-resolver";
 import { z } from "zod";
 
-export const getRecordFromAtUri = async ({
+export const getRecordFromFullAtUri = async ({
     authority,
     collection,
     rKey,
-}: Required<AtUri>): Promise<Result<unknown, unknown>> => {
+}: AtUri): Promise<Result<unknown, unknown>> => {
     const didDocResult = await resolveDidDoc(authority);
     if (!didDocResult.ok) return { ok: false, error: didDocResult.error };
+
+    if (!collection || !rKey)
+        return {
+            ok: false,
+            error: "No rkey or collection found in provided AtUri object",
+        };
 
     const { service: services } = didDocResult.data;
     if (!services)

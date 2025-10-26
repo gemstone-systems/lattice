@@ -5,7 +5,7 @@ import type {
     ConstellationBacklinkResponse,
 } from "@/lib/types/constellation";
 import { constellationBacklinkResponseSchema } from "@/lib/types/constellation";
-import { getRecordFromAtUri } from "@/lib/utils/atproto";
+import { getRecordFromFullAtUri } from "@/lib/utils/atproto";
 import type { Result } from "@/lib/utils/result";
 import type { ZodError } from "zod";
 
@@ -57,7 +57,7 @@ export const getPdsRecordFromBacklink = async (
     backlink: ConstellationBacklink,
 ): Promise<Result<unknown, unknown>> => {
     const atUri = createAtUriFromBacklink(backlink);
-    const atUriRecordResult = await getRecordFromAtUri(atUri);
+    const atUriRecordResult = await getRecordFromFullAtUri(atUri);
     if (!atUriRecordResult.ok)
         return { ok: false, error: atUriRecordResult.error };
     return { ok: true, data: atUriRecordResult.data };

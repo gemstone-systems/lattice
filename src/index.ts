@@ -2,7 +2,7 @@ import { OWNER_DID, SERVER_PORT, SERVICE_DID } from "@/lib/env";
 import { connectToShards, performHandshakes } from "@/lib/setup";
 import { handshakeTokens, setRegistrationState } from "@/lib/state";
 import type { AtUri } from "@/lib/types/atproto";
-import { getRecordFromAtUri } from "@/lib/utils/atproto";
+import { getRecordFromFullAtUri } from "@/lib/utils/atproto";
 import { newErrorResponse } from "@/lib/utils/http/responses";
 import { connectToPrism } from "@/lib/utils/prism";
 import {
@@ -78,7 +78,7 @@ const main = async () => {
         rKey: latticeUrlOrigin,
     };
 
-    const latticeRecord = await getRecordFromAtUri(latticeAtUri);
+    const latticeRecord = await getRecordFromFullAtUri(latticeAtUri);
 
     if (latticeRecord.ok) {
         setRegistrationState(true);
