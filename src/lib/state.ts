@@ -1,5 +1,5 @@
 import type { AtUri } from "@/lib/types/atproto";
-import type { SessionInfo } from "@/lib/types/handshake";
+import type { ShardSessionInfo } from "@/lib/types/handshake";
 import type WebSocket from "ws";
 
 export const registrationState = {
@@ -15,5 +15,5 @@ export const getRegistrationState = () => {
     return registrationState;
 };
 
-export const handshakeTokens = new Map<AtUri, SessionInfo>();
-export const shardSessions = new Map<SessionInfo, WebSocket>();
+export const handshakeTokens = new Map<AtUri, ShardSessionInfo>();
+export const shardSessions = new Map<ShardSessionInfo, WebSocket>();

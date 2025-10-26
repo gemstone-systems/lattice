@@ -1,5 +1,5 @@
 import type { AtUri, Did } from "@/lib/types/atproto";
-import type { SessionInfo } from "@/lib/types/handshake";
+import type { ShardSessionInfo } from "@/lib/types/handshake";
 import {
     handshakeResponseSchema,
     httpSuccessResponseSchema,
@@ -16,7 +16,7 @@ export const initiateHandshakeTo = async ({
 }: {
     did: Did;
     channels: Array<AtUri>;
-}): Promise<Result<SessionInfo, unknown>> => {
+}): Promise<Result<ShardSessionInfo, unknown>> => {
     const shardUrlResult = await getShardEndpointFromDid(did);
     if (!shardUrlResult.ok) return { ok: false, error: shardUrlResult.error };
 
