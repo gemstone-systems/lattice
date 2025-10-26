@@ -1,7 +1,7 @@
-import { clientHandshakeHandler } from "@/lib/handlers/handshake";
+import { latticeHandshakeHandler } from "@/lib/handlers/latticeHandshake";
 import type { Route } from "@/lib/types/routes";
 
 export const handshakeRoute: Route = {
     method: "POST",
-    handler: clientHandshakeHandler,
+    handler: latticeHandshakeHandler,
 };

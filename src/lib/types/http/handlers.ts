@@ -1,7 +1,8 @@
+import { systemsGmstnDevelopmentChannelMembershipRecordSchema } from "@/lib/types/lexicon/systems.gmstn.development.channel.membership";
 import { z } from "zod";
 
-export const handshakeDataSchema = z.object({
+export const latticeHandshakeDataSchema = z.object({
     interServiceJwt: z.string(),
-    channelAtUris: z.array(z.string()),
+    memberships: z.array(systemsGmstnDevelopmentChannelMembershipRecordSchema),
 });
-export type HandshakeData = z.infer<typeof handshakeDataSchema>;
+export type LatticeHandshakeData = z.infer<typeof latticeHandshakeDataSchema>;
