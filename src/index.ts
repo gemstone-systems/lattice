@@ -95,7 +95,10 @@ const main = async () => {
     await performHandshakes(latticeAtUri);
 
     const test = await connectToShards();
-    console.log("connected to", test.map((socket) => socket.url));
+    console.log(
+        "connected to",
+        test.map((socket) => socket.url),
+    );
 
     // TODO: change this to the actual WS sessions
     const handshakeTokenEntries = handshakeTokens.entries().toArray();
