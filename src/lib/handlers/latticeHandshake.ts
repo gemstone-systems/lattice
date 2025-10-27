@@ -63,7 +63,7 @@ export const latticeHandshakeHandler: RouteHandler = async (req) => {
         const recordResult = await getRecordFromFullAtUri(inviteAtUri);
         if (!recordResult.ok) {
             console.error(
-                `something went wrong fetching the record from the given membership ${JSON.stringify(membership)}`,
+                `something went wrong fetching the invite record from the given membership ${JSON.stringify(membership)}`,
             );
             throw new Error(
                 JSON.stringify({ error: recordResult.error, membership }),
@@ -78,7 +78,7 @@ export const latticeHandshakeHandler: RouteHandler = async (req) => {
     } catch (err) {
         return newErrorResponse(500, {
             message:
-                "Something went wrong when fetching membership channel records. Check the Shard logs if possible.",
+                "Something went wrong when fetching membership invite records. Check the Shard logs if possible.",
             details: err,
         });
     }
@@ -115,7 +115,7 @@ export const latticeHandshakeHandler: RouteHandler = async (req) => {
             const recordResult = await getRecordFromFullAtUri(channelAtUri);
             if (!recordResult.ok) {
                 console.error(
-                    `something went wrong fetching the record from the given membership ${JSON.stringify(invite)}`,
+                    `something went wrong fetching the channel record from the given membership ${JSON.stringify(invite)}`,
                 );
                 throw new Error(
                     JSON.stringify({ error: recordResult.error, invite }),
@@ -158,6 +158,7 @@ export const latticeHandshakeHandler: RouteHandler = async (req) => {
     // did of the backlink. if there are any channels described by unauthorised parties, simply drop them.
 
     let mismatchOrIncorrect = false;
+    const errors: Array<unknown> = [];
     const existingShardConnectionShardDids = shardSessions
         .keys()
         .toArray()
@@ -175,6 +176,7 @@ export const latticeHandshakeHandler: RouteHandler = async (req) => {
             routeThroughRecord.uri,
         );
         if (!routeThroughRecordParseResult.ok) {
+            errors.push(routeThroughRecordParseResult.error);
             mismatchOrIncorrect = true;
             return;
         }
@@ -183,11 +185,18 @@ export const latticeHandshakeHandler: RouteHandler = async (req) => {
         // FIXME: this also assumes that the requesting lattice's DID is a did:web
         // see below for the rest of the issues.
         if (routeThroughUri.rKey === SERVICE_DID.slice(8)) {
+            errors.push(
+                "Mismatch between claimant lattice and channel routeThrough. Request wants to validate for",
+                routeThroughUri.rKey,
+                ", but this lattice is",
+                SERVICE_DID.slice(8),
+            );
             mismatchOrIncorrect = true;
             return;
         }
         const storeAtRecordParseResult = stringToAtUri(storeAtRecord.uri);
         if (!storeAtRecordParseResult.ok) {
+            errors.push(storeAtRecordParseResult.error);
             mismatchOrIncorrect = true;
             return;
         }
@@ -203,6 +212,12 @@ export const latticeHandshakeHandler: RouteHandler = async (req) => {
         if (!storeAtUri.rKey) return;
 
         if (!existingShardConnectionShardDids.includes(storeAtUri.rKey)) {
+            errors.push(
+                "Mismatch between claimant shard and channel storeAt. Request wants to validate for",
+                storeAtUri.rKey,
+                ", but this lattice is only allowed to talk to",
+                existingShardConnectionShardDids,
+            );
             mismatchOrIncorrect = true;
             return;
         }
@@ -213,6 +228,7 @@ export const latticeHandshakeHandler: RouteHandler = async (req) => {
         return newErrorResponse(400, {
             message:
                 "Channels provided during the handshake had a mismatch between the channel values. Ensure that you are only submitting exactly the channels you have access to.",
+            details: errors,
         });
 
     // yipee, it's a valid request :3
