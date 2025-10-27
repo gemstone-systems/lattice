@@ -1,8 +1,8 @@
 import type { AtUri, Did } from "@/lib/types/atproto";
-import type { ShardSessionInfo } from "@/lib/types/handshake";
+import { type ShardSessionInfo } from "@/lib/types/handshake";
 import {
-    handshakeResponseSchema,
     httpSuccessResponseSchema,
+    shardHandshakeResponseSchema,
 } from "@/lib/types/http/responses";
 import { atUriToString } from "@/lib/utils/atproto";
 import { getShardEndpointFromDid } from "@/lib/utils/gmstn";
@@ -54,7 +54,7 @@ export const initiateHandshakeTo = async ({
         success: handshakeDataParseSuccess,
         error: handshakeDataParseError,
         data: handshakeDataParsed,
-    } = handshakeResponseSchema.safeParse(handshakeData);
+    } = shardHandshakeResponseSchema.safeParse(handshakeData);
     if (!handshakeDataParseSuccess)
         return { ok: false, error: z.treeifyError(handshakeDataParseError) };
 
