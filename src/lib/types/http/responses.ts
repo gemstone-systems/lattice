@@ -1,4 +1,7 @@
-import { latticeSessionInfoSchema } from "@/lib/types/handshake";
+import {
+    latticeSessionInfoSchema,
+    shardSessionInfoSchema,
+} from "@/lib/types/handshake";
 import { httpResponseErrorInfoSchema } from "@/lib/types/http/errors";
 import { z } from "zod";
 
@@ -11,12 +14,24 @@ export type HttpResponseStatusType = z.infer<
     typeof httpResponseStatusTypeSchema
 >;
 
-export const handshakeResponseSchema = z.object({
+export const latticeHandshakeResponseSchema = z.object({
     sessionInfo: latticeSessionInfoSchema,
 });
-export type HandshakeResponse = z.infer<typeof handshakeResponseSchema>;
+export type LatticeHandshakeResponse = z.infer<
+    typeof latticeHandshakeResponseSchema
+>;
 
-export const httpResponseDataSchema = z.union([handshakeResponseSchema]);
+export const shardHandshakeResponseSchema = z.object({
+    sessionInfo: shardSessionInfoSchema,
+});
+export type ShardHandshakeResponse = z.infer<
+    typeof shardHandshakeResponseSchema
+>;
+
+export const httpResponseDataSchema = z.union([
+    latticeHandshakeResponseSchema,
+    shardHandshakeResponseSchema,
+]);
 export type HttpResponseData = z.infer<typeof httpResponseDataSchema>;
 
 const httpResponseBaseSchema = z.object({
