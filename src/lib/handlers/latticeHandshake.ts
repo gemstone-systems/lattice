@@ -211,7 +211,11 @@ export const latticeHandshakeHandler: RouteHandler = async (req) => {
 
         if (!storeAtUri.rKey) return;
 
-        if (!existingShardConnectionShardDids.includes(storeAtUri.rKey)) {
+        if (
+            !existingShardConnectionShardDids.includes(
+                encodeURIComponent(storeAtUri.rKey),
+            )
+        ) {
             errors.push(
                 "Mismatch between claimant shard and channel storeAt. Request wants to validate for",
                 storeAtUri.rKey,
