@@ -119,11 +119,11 @@ export const performHandshakes = async (latticeAtUri: AtUri) => {
 };
 
 export const connectToShards = async () => {
-    const shardSessions = handshakeTokens.entries();
-    const shardConnectionPromises = shardSessions
-        .map(async (session) => {
-            const atUri = session[0];
-            const { token } = session[1];
+    const handshakes = handshakeTokens.entries();
+    const shardConnectionPromises = handshakes
+        .map(async (handshake) => {
+            const atUri = handshake[0];
+            const sessionInfo = handshake[1];
             const rkey = atUri.rKey ?? "";
             const shardDid = isDomain(rkey)
                 ? `did:web:${encodeURIComponent(rkey)}`
@@ -141,7 +141,7 @@ export const connectToShards = async () => {
             return {
                 // TODO: xrpc and lexicon this endpoint
                 shardUrl: `${shardUrlResult.data.origin}/connect`,
-                sessionToken: token,
+                sessionInfo,
             };
         })
         .toArray();

@@ -1,4 +1,6 @@
+import { shardSessions } from "@/lib/state";
 import type { Did } from "@/lib/types/atproto";
+import type { ShardSessionInfo } from "@/lib/types/handshake";
 import { getEndpointFromDid } from "@/lib/utils/atproto";
 import WebSocket from "ws";
 
@@ -8,12 +10,15 @@ export const getShardEndpointFromDid = async (did: Did) => {
 
 export const connectToShard = ({
     shardUrl,
-    sessionToken,
+    sessionInfo,
 }: {
     shardUrl: string;
-    sessionToken: string;
+    sessionInfo: ShardSessionInfo;
 }) => {
     const endpoint = new URL(shardUrl);
-    endpoint.searchParams.append("token", sessionToken);
-    return new WebSocket(endpoint);
+    const { token } = sessionInfo;
+    endpoint.searchParams.append("token", token);
+    const ws = new WebSocket(endpoint);
+    shardSessions.set(sessionInfo, ws);
+    return ws;
 };
