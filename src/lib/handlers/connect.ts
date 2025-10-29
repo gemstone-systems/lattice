@@ -3,8 +3,15 @@ import {
     issuedLatticeTokens,
     isValidSession,
 } from "@/lib/sessions";
+import { shardSessions } from "@/lib/state";
+import type { ShardMessage } from "@/lib/types/messages";
 import type { PreHandler, WsRouteHandler } from "@/lib/types/routes";
-import { rawDataToString } from "@/lib/utils/ws";
+import { stringToAtUri } from "@/lib/utils/atproto";
+import { storeMessageInShard } from "@/lib/utils/gmstn";
+import {
+    rawDataToString,
+    validateWsMessageType,
+} from "@/lib/utils/ws/validate";
 
 export const connectPreHandler: PreHandler = (req, reply, done) => {
     const { query } = req;
@@ -65,8 +72,25 @@ export const connectWsHandler: WsRouteHandler = (socket, req) => {
         return;
     }
 
-    socket.on("message", (event) => {
-        const message = rawDataToString(event);
-        console.log(message)
-    })
+    socket.on("message", (rawData) => {
+        const event = rawDataToString(rawData);
+
+        const data: unknown = JSON.parse(event);
+        const validateTypeResult = validateWsMessageType(data);
+        if (!validateTypeResult.ok) return;
+
+        const { type: messageType } = validateTypeResult.data;
+
+        switch (messageType) {
+            case "shard/message": {
+                const shardMessage = validateTypeResult.data as ShardMessage;
+                const { channel } = shardMessage;
+                const atUriParseResult = stringToAtUri(channel);
+                if (!atUriParseResult.ok) return;
+                const { data: channelAtUri } = atUriParseResult;
+
+                storeMessageInShard({ channelAtUri, message: shardMessage });
+            }
+        }
+    });
 };
