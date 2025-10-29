@@ -30,6 +30,7 @@ const main = async () => {
                 wsHandler,
                 method,
                 handler: httpHandler,
+                preHandler,
                 skipRegistrationCheckHttp,
                 skipRegistrationCheckWs,
             } = route;
@@ -49,6 +50,7 @@ const main = async () => {
                 wsHandler: skipRegistrationCheckWs
                     ? wsHandler
                     : wrapWsRegistrationCheck(wsHandler),
+                preHandler,
             });
         }
     }
