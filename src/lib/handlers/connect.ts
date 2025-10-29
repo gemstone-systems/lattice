@@ -3,7 +3,6 @@ import {
     issuedLatticeTokens,
     isValidSession,
 } from "@/lib/sessions";
-import { shardSessions } from "@/lib/state";
 import type { ShardMessage } from "@/lib/types/messages";
 import type { PreHandler, WsRouteHandler } from "@/lib/types/routes";
 import { stringToAtUri } from "@/lib/utils/atproto";
