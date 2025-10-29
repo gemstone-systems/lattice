@@ -3,7 +3,7 @@ import { getRegistrationState, setRegistrationState } from "@/lib/state";
 import { prismCommitSchema } from "@/lib/types/prism";
 import type { RouteHandler, WsRouteHandler } from "@/lib/types/routes";
 import { newErrorResponse } from "@/lib/utils/http/responses";
-import { rawDataToString } from "@/lib/utils/ws";
+import { rawDataToString } from "@/lib/utils/ws/validate";
 import type { RawData } from "ws";
 import type WebSocket from "ws";
 
