@@ -1,3 +1,4 @@
+import { clientSessions } from "@/lib/sessions";
 import { shardSessions } from "@/lib/state";
 import type { AtUri, Did } from "@/lib/types/atproto";
 import type { ShardSessionInfo } from "@/lib/types/handshake";
@@ -31,24 +32,28 @@ export const storeMessageInShard = ({
     channelAtUri: AtUri;
     message: ShardMessage;
 }) => {
-    const sessionInfo = shardSessions
+    const shardSessionInfo = shardSessions
         .keys()
         .find((sessionInfo) =>
             sessionInfo.allowedChannels.some(
                 (allowedChannel) => allowedChannel.rKey === channelAtUri.rKey,
             ),
         );
-    if (!sessionInfo) return;
+    if (!shardSessionInfo) return;
 
-    const shardSocket = shardSessions.get(sessionInfo);
+    const shardSocket = shardSessions.get(shardSessionInfo);
     if (!shardSocket) {
         console.error(
             "Could find session info object in map, but socket could not be retrieved from map. Race condition?",
         );
         return;
     }
+    const messageToSendToShard = {
+        ...message,
+        sessionToken: shardSessionInfo.token,
+    };
     if (shardSocket.readyState === WebSocket.OPEN)
-        shardSocket.send(JSON.stringify(message));
+        shardSocket.send(JSON.stringify(messageToSendToShard));
 
     console.log(
         "Sent off message",
@@ -56,4 +61,36 @@ export const storeMessageInShard = ({
         "to shard located at",
         shardSocket.url,
     );
+};
+
+export const sendToChannelClients = ({
+    channelAtUri,
+    message,
+}: {
+    channelAtUri: AtUri;
+    message: ShardMessage;
+}) => {
+    const sessions = clientSessions
+        .keys()
+        .filter((sessionInfo) =>
+            sessionInfo.allowedChannels.some(
+                (allowedChannel) => allowedChannel.rKey === channelAtUri.rKey,
+            ),
+        );
+
+    const clientSockets = sessions
+        .map((session) => {
+            return clientSessions.get(session);
+        })
+        .filter((e) => e !== undefined);
+
+    clientSockets.forEach((clientSocket) => {
+        clientSocket.send(JSON.stringify(message));
+        console.log(
+            "Sent off message",
+            message,
+            "to clientSocket pointing to",
+            clientSocket.url,
+        );
+    });
 };

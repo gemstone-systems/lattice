@@ -3,14 +3,15 @@ import {
     issuedLatticeTokens,
     isValidSession,
 } from "@/lib/sessions";
-import type { ShardMessage } from "@/lib/types/messages";
+import { shardMessageSchema } from "@/lib/types/messages";
 import type { PreHandler, WsRouteHandler } from "@/lib/types/routes";
 import { stringToAtUri } from "@/lib/utils/atproto";
-import { storeMessageInShard } from "@/lib/utils/gmstn";
+import { sendToChannelClients, storeMessageInShard } from "@/lib/utils/gmstn";
 import {
     rawDataToString,
     validateWsMessageType,
 } from "@/lib/utils/ws/validate";
+import { z } from "zod";
 
 export const connectPreHandler: PreHandler = (req, reply, done) => {
     const { query } = req;
@@ -82,12 +83,27 @@ export const connectWsHandler: WsRouteHandler = (socket, req) => {
 
         switch (messageType) {
             case "shard/message": {
-                const shardMessage = validateTypeResult.data as ShardMessage;
+                const {
+                    success,
+                    error,
+                    data: shardMessage,
+                } = shardMessageSchema.safeParse(validateTypeResult.data);
+                if (!success) {
+                    console.error(
+                        "could not parse",
+                        validateTypeResult.data,
+                        "as a valid ShardMessage.",
+                    );
+                    console.error(z.treeifyError(error));
+                    return;
+                }
                 const { channel } = shardMessage;
+
                 const atUriParseResult = stringToAtUri(channel);
                 if (!atUriParseResult.ok) return;
                 const { data: channelAtUri } = atUriParseResult;
 
+                sendToChannelClients({ channelAtUri, message: shardMessage });
                 storeMessageInShard({ channelAtUri, message: shardMessage });
             }
         }
