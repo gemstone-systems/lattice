@@ -54,6 +54,7 @@ export const verifyLatticeToken = ({
     }
 };
 
+// map of session tokens to session info objects
 export const issuedLatticeTokens = new Map<string, LatticeSessionInfo>();
 
 export const issueNewLatticeToken = ({
@@ -77,7 +78,7 @@ export const issueNewLatticeToken = ({
     return sessionInfo;
 };
 
-export const activeSessions = new Map<string, WebSocket>();
+export const activeLatticeSessions = new Map<LatticeSessionInfo, WebSocket>();
 
 export const isValidSession = (sessionInfo: LatticeSessionInfo) => {
     return (
@@ -98,16 +99,16 @@ export const createNewSession = ({
     } catch {
         return { ok: false };
     }
-    activeSessions.set(sessionInfo.id, socket);
+    activeLatticeSessions.set(sessionInfo, socket);
     return { ok: true, data: { sessionSocket: socket } };
 };
 
 export const deleteSession = (
     sessionInfo: LatticeSessionInfo,
 ): Result<undefined, undefined> => {
-    if (!activeSessions.has(sessionInfo.id)) return { ok: false };
+    if (!activeLatticeSessions.has(sessionInfo)) return { ok: false };
     try {
-        activeSessions.delete(sessionInfo.id);
+        activeLatticeSessions.delete(sessionInfo);
     } catch {
         return { ok: false };
     }
