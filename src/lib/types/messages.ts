@@ -29,6 +29,7 @@ export const historyMessageSchema = websocketMessageSchema
         type: z.literal("shard/history"),
         messages: z.optional(z.array(shardMessageSchema)),
         channel: z.string(),
+        forClient: didSchema,
     })
     .strict();
 export type HistoryMessage = z.infer<typeof historyMessageSchema>;
@@ -37,6 +38,7 @@ export const requestHistoryMessageSchema = websocketMessageSchema
     .safeExtend({
         type: z.literal("shard/requestHistory"),
         channel: z.string(),
+        requestedBy: didSchema,
     })
     .strict();
 export type RequestHistoryMessage = z.infer<typeof requestHistoryMessageSchema>;

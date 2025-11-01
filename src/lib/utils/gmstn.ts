@@ -1,8 +1,9 @@
+import { attachHistoryFromShardListener } from "@/lib/listeners/shard-history";
 import { clientSessions } from "@/lib/sessions";
 import { shardSessions } from "@/lib/state";
 import type { AtUri, Did } from "@/lib/types/atproto";
 import type { ShardSessionInfo } from "@/lib/types/handshake";
-import type { ShardMessage } from "@/lib/types/messages";
+import type { RequestHistoryMessage, ShardMessage } from "@/lib/types/messages";
 import { getEndpointFromDid } from "@/lib/utils/atproto";
 import WebSocket from "ws";
 
@@ -22,6 +23,7 @@ export const connectToShard = ({
     endpoint.searchParams.append("token", token);
     const ws = new WebSocket(endpoint);
     shardSessions.set(sessionInfo, ws);
+    attachHistoryFromShardListener(ws);
     return ws;
 };
 
@@ -92,4 +94,41 @@ export const sendToChannelClients = ({
             clientSocket.url,
         );
     });
+};
+
+export const sendHistoryRequestToShard = ({
+    channelAtUri,
+    message,
+}: {
+    channelAtUri: AtUri;
+    message: RequestHistoryMessage;
+}) => {
+    const shardSessionInfo = shardSessions
+        .keys()
+        .find((sessionInfo) =>
+            sessionInfo.allowedChannels.some(
+                (allowedChannel) => allowedChannel.rKey === channelAtUri.rKey,
+            ),
+        );
+    if (!shardSessionInfo) return;
+
+    const shardSocket = shardSessions.get(shardSessionInfo);
+    if (!shardSocket) {
+        console.error(
+            "Could find session info object in map, but socket could not be retrieved from map. Race condition?",
+        );
+        return;
+    }
+    const messageToSendToShard = {
+        ...message,
+    };
+    if (shardSocket.readyState === WebSocket.OPEN)
+        shardSocket.send(JSON.stringify(messageToSendToShard));
+
+    console.log(
+        "Sent off message",
+        message,
+        "to shard located at",
+        shardSocket.url,
+    );
 };

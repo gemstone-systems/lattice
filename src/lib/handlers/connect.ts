@@ -1,12 +1,20 @@
 import {
     createNewSession,
+    deleteSession,
     issuedLatticeTokens,
     isValidSession,
 } from "@/lib/sessions";
-import { shardMessageSchema } from "@/lib/types/messages";
+import {
+    requestHistoryMessageSchema,
+    shardMessageSchema,
+} from "@/lib/types/messages";
 import type { PreHandler, WsRouteHandler } from "@/lib/types/routes";
 import { stringToAtUri } from "@/lib/utils/atproto";
-import { sendToChannelClients, storeMessageInShard } from "@/lib/utils/gmstn";
+import {
+    sendHistoryRequestToShard,
+    sendToChannelClients,
+    storeMessageInShard,
+} from "@/lib/utils/gmstn";
 import {
     rawDataToString,
     validateWsMessageType,
@@ -105,7 +113,41 @@ export const connectWsHandler: WsRouteHandler = (socket, req) => {
 
                 sendToChannelClients({ channelAtUri, message: shardMessage });
                 storeMessageInShard({ channelAtUri, message: shardMessage });
+                break;
+            }
+            case "shard/requestHistory": {
+                const {
+                    success,
+                    error,
+                    data: requestHistoryMessage,
+                } = requestHistoryMessageSchema.safeParse(
+                    validateTypeResult.data,
+                );
+                if (!success) {
+                    console.error(
+                        "could not parse",
+                        validateTypeResult.data,
+                        "as a valid history request message.",
+                    );
+                    console.error(z.treeifyError(error));
+                    return;
+                }
+
+                const { channel } = requestHistoryMessage;
+
+                const atUriParseResult = stringToAtUri(channel);
+                if (!atUriParseResult.ok) return;
+                const { data: channelAtUri } = atUriParseResult;
+
+                sendHistoryRequestToShard({
+                    channelAtUri,
+                    message: requestHistoryMessage,
+                });
             }
         }
+    });
+
+    socket.on("close", () => {
+        deleteSession(sessionInfo);
     });
 };
