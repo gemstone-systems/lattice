@@ -50,7 +50,6 @@ export const storeMessageInShard = ({
     }
     const messageToSendToShard = {
         ...message,
-        sessionToken: shardSessionInfo.token,
     };
     if (shardSocket.readyState === WebSocket.OPEN)
         shardSocket.send(JSON.stringify(messageToSendToShard));

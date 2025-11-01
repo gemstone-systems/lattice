@@ -15,10 +15,10 @@ export type WebsocketMessage = z.infer<typeof websocketMessageSchema>;
 export const shardMessageSchema = websocketMessageSchema
     .safeExtend({
         type: z.literal("shard/message"),
-        sessionToken: z.string(),
         channel: z.string(),
         content: z.string(),
         sentBy: didSchema,
+        routedThrough: didSchema,
         sentAt: z.coerce.date(),
     })
     .strict();
