@@ -6,7 +6,8 @@
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
         "dev": "tsx src/index.ts",
-        "lint": "eslint src/"
+        "lint": "eslint src/",
+        "build": "tsdown src/index.ts"
     },
     "keywords": [],
     "author": "",
@@ -20,6 +21,7 @@
         "globals": "^16.4.0",
         "jiti": "^2.6.1",
         "prettier": "^3.6.2",
+        "tsdown": "^0.16.1",
         "typescript": "^5.9.3",
         "typescript-eslint": "^8.46.0"
     },
