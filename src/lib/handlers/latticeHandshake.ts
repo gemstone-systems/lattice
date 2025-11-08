@@ -65,16 +65,16 @@ export const latticeHandshakeHandler: RouteHandler = async (req) => {
             console.error(
                 `something went wrong fetching the invite record from the given membership ${JSON.stringify(membership)}`,
             );
-            throw new Error(
-                JSON.stringify({ error: recordResult.error, membership }),
-            );
+            return;
         }
         return recordResult.data;
     });
 
     let pdsInviteRecords;
     try {
-        pdsInviteRecords = await Promise.all(pdsInviteRecordFetchPromises);
+        pdsInviteRecords = (
+            await Promise.all(pdsInviteRecordFetchPromises)
+        ).filter((val) => val !== undefined);
     } catch (err) {
         return newErrorResponse(500, {
             message:
