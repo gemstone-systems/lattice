@@ -1,3 +1,4 @@
+import { didSchema } from "@/lib/types/atproto";
 import {
     latticeSessionInfoSchema,
     shardSessionInfoSchema,
@@ -28,9 +29,16 @@ export type ShardHandshakeResponse = z.infer<
     typeof shardHandshakeResponseSchema
 >;
 
+export const getOwnerDidResponseSchema = z.object({
+    registered: z.boolean(),
+    ownerDid: didSchema,
+});
+export type GetOwnerDidResponse = z.infer<typeof getOwnerDidResponseSchema>;
+
 export const httpResponseDataSchema = z.union([
     latticeHandshakeResponseSchema,
     shardHandshakeResponseSchema,
+    getOwnerDidResponseSchema,
 ]);
 export type HttpResponseData = z.infer<typeof httpResponseDataSchema>;
 
