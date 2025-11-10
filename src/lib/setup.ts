@@ -111,7 +111,10 @@ export const performHandshakes = async (latticeAtUri: AtUri) => {
             did: shardDid,
             channels: channelAtUris,
         });
-        if (!handshakeResult.ok) continue;
+        if (!handshakeResult.ok) {
+            console.error(handshakeResult.error);
+            continue;
+        }
         const sessionInfo = handshakeResult.data;
         console.log("Handshake to", shardAtUri.rKey, "complete!");
         handshakeTokens.set(shardAtUri, sessionInfo);
