@@ -42,11 +42,14 @@ export const initiateHandshakeTo = async ({
         error: httpResponseParseError,
         data: handshakeResponseDataParsed,
     } = httpSuccessResponseSchema.safeParse(handshakeResponseData);
-    if (!httpResponseParseSuccess)
+    if (!httpResponseParseSuccess) {
+        console.error("Parsing response failed.", httpResponseParseError);
+        console.error("Incoming data:", JSON.stringify(handshakeResponseData));
         return {
             ok: false,
             error: z.treeifyError(httpResponseParseError),
         };
+    }
 
     const { data: handshakeData } = handshakeResponseDataParsed;
 
