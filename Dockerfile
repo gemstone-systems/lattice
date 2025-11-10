@@ -23,6 +23,6 @@ RUN pnpm install --prod --frozen-lockfile
 
 COPY --from=builder /app/dist ./dist
 
-EXPOSE 7337
+EXPOSE 7338
 
 CMD ["node", "dist/index.mjs"]
