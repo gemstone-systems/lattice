@@ -184,7 +184,7 @@ export const latticeHandshakeHandler: RouteHandler = async (req) => {
 
         // FIXME: this also assumes that the requesting lattice's DID is a did:web
         // see below for the rest of the issues.
-        if (routeThroughUri.rKey === SERVICE_DID.slice(8)) {
+        if (routeThroughUri.rKey !== SERVICE_DID.slice(8)) {
             errors.push(
                 "Mismatch between claimant lattice and channel routeThrough. Request wants to validate for",
                 routeThroughUri.rKey,
