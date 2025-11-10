@@ -1,4 +1,4 @@
-import { SERVICE_DID } from "@/lib/env";
+import { SERVER_PORT, SERVICE_DID } from "@/lib/env";
 import { issueNewLatticeToken } from "@/lib/sessions";
 import { shardSessions } from "@/lib/state";
 import { HttpGeneralErrorType } from "@/lib/types/http/errors";
@@ -184,7 +184,10 @@ export const latticeHandshakeHandler: RouteHandler = async (req) => {
 
         // FIXME: this also assumes that the requesting lattice's DID is a did:web
         // see below for the rest of the issues.
-        if (routeThroughUri.rKey !== SERVICE_DID.slice(8)) {
+        let thisLatticeDomain = SERVICE_DID.slice(8);
+        if (thisLatticeDomain === "localhost")
+            thisLatticeDomain = `localhost:${SERVER_PORT.toString()}`;
+        if (routeThroughUri.rKey !== thisLatticeDomain) {
             errors.push(
                 "Mismatch between claimant lattice and channel routeThrough. Request wants to validate for",
                 routeThroughUri.rKey,

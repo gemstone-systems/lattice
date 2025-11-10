@@ -27,7 +27,7 @@ if (!serviceDidParseSuccess) {
         "Environment variable SERVICE_DID not set. Defaulting to `did:web:localhost`",
     );
 }
-export const SERVICE_DID = serviceDidParsed ?? "did:web:localhost";
+export const SERVICE_DID = serviceDidParsed ?? `did:web:localhost%3A${SERVER_PORT.toString()}`;
 
 const constellationUrl = process.env.CONSTELLATION_URL;
 let constellationUrlParsed: URL | undefined;
