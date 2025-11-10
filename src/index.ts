@@ -55,7 +55,7 @@ const main = async () => {
         }
     }
 
-    server.listen({ port: SERVER_PORT }).catch((err: unknown) => {
+    server.listen({ port: SERVER_PORT, host: "::" }).catch((err: unknown) => {
         server.log.error(err);
         process.exit(1);
     });
