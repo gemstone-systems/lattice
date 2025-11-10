@@ -112,7 +112,8 @@ export const performHandshakes = async (latticeAtUri: AtUri) => {
             channels: channelAtUris,
         });
         if (!handshakeResult.ok) {
-            console.error(handshakeResult.error);
+            console.error("Handshake to", shardDid, "failed.");
+            console.error(JSON.stringify(handshakeResult.error));
             continue;
         }
         const sessionInfo = handshakeResult.data;
