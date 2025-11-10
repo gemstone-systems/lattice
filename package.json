@@ -8,6 +8,9 @@
         "dev": "tsx src/index.ts",
         "lint": "eslint src/",
         "build": "tsdown src/index.ts",
+        "docker:pre-build": "sed \"s/[\\\"']//g\" .env > .docker.env",
+        "docker:build": "pnpm docker:pre-build && docker build -t gmstn-systems-lattice .",
+        "docker:run": "source $(eval pwd)/.docker.env && echo $SERVER_PORT && docker run --network=host -p $SERVER_PORT:$SERVER_PORT --env-file .docker.env gmstn-systems-lattice",
         "start": "pnpm build && node dist/index.mjs"
     },
     "keywords": [],
